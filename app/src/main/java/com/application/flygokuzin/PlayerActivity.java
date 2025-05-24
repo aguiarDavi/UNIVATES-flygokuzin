@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 
 public class PlayerActivity {
     private float x, y, radius;
+    private float canvasWidth; // largura da tela para limitar o movimento
     private Bitmap[] spritesDireita;
     private Bitmap[] spritesEsquerda;
     private int spriteIndex = 0;
@@ -20,7 +21,12 @@ public class PlayerActivity {
         this.spritesEsquerda = spritesEsquerda;
     }
 
+    public void setCanvasWidth(float width) {
+        this.canvasWidth = width;
+    }
+
     public void update(float sensorX) {
+        // Movimento lateral via acelerômetro
         if (sensorX > 1) {
             x -= sensorX * 5;
             indoEsquerda = true;
@@ -29,11 +35,18 @@ public class PlayerActivity {
             indoEsquerda = false;
         }
 
-        if (indoEsquerda != direcaoAtualEsquerda) {
-            spriteIndex = 0;
-            direcaoAtualEsquerda = indoEsquerda;
-        } else {
-            spriteIndex = (spriteIndex + 1) % spritesDireita.length;
+        // Impedir que o personagem saia da tela
+        if (x < radius) x = radius;
+        if (x > canvasWidth - radius) x = canvasWidth - radius;
+
+        // Alterna animação apenas se estiver se movendo
+        if (Math.abs(sensorX) > 1) {
+            if (indoEsquerda != direcaoAtualEsquerda) {
+                spriteIndex = 0;
+                direcaoAtualEsquerda = indoEsquerda;
+            } else {
+                spriteIndex = (spriteIndex + 1) % spritesDireita.length;
+            }
         }
     }
 
@@ -42,7 +55,10 @@ public class PlayerActivity {
                 ? spritesEsquerda[spriteIndex]
                 : spritesDireita[spriteIndex];
 
-        canvas.drawBitmap(spriteAtual, x - spriteAtual.getWidth() / 2, y - spriteAtual.getHeight() / 2, null);
+        canvas.drawBitmap(spriteAtual,
+                x - spriteAtual.getWidth() / 2,
+                y - spriteAtual.getHeight() / 2,
+                null);
     }
 
     public float getX() { return x; }
