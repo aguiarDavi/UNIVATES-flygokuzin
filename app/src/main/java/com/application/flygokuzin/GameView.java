@@ -19,17 +19,17 @@ public class GameView extends SurfaceView implements Runnable {
     private Thread gameThread;
     private boolean isPlaying = false;
     private SurfaceHolder holder;
-
     private PlayerActivity player;
     private List<ObstacleActivity> obstacles;
     private float sensorX;
-
     private int score = 0;
     private long ultimoIncrementoScore = System.currentTimeMillis();
     private Paint textPaint;
-
     private boolean playerCriado = false;
     private boolean gameOverMostrado = false;
+    private Canvas canvas;
+    private ParallaxActivity layer1, layer2, layer3;
+
 
     public GameView(Context context) {
         super(context);
@@ -49,6 +49,14 @@ public class GameView extends SurfaceView implements Runnable {
             post(this::criarPlayer);
             return;
         }
+
+        Bitmap bgFar = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far);
+        //Bitmap bgMid = BitmapFactory.decodeResource(getResources(), R.drawable.bg_mid);
+        //Bitmap bgFront = BitmapFactory.decodeResource(getResources(), R.drawable.bg_front);
+
+        layer1 = new ParallaxActivity(bgFar, 1.0f, getHeight());
+        //layer2 = new ParallaxActivity(bgMid, 2.0f, getHeight());
+        //layer3 = new ParallaxActivity(bgFront, 3.0f, getHeight());
 
         int centerX = getWidth() / 2;
         int centerY = getHeight() - 300;
@@ -95,6 +103,10 @@ public class GameView extends SurfaceView implements Runnable {
                 aumentarDificuldade();
             }
         }
+        //update nas layers
+        if (layer1 != null) layer1.update();
+        //if (layer2 != null) layer2.update();
+        //if (layer3 != null) layer3.update();
 
         player.update(sensorX);
 
@@ -139,7 +151,12 @@ public class GameView extends SurfaceView implements Runnable {
     private void draw() {
         if (holder.getSurface().isValid()) {
             Canvas canvas = holder.lockCanvas();
-            canvas.drawColor(Color.WHITE);
+            // canvas.drawColor(Color.WHITE);
+
+            // Desenhar as camadas do fundo
+            if (layer1 != null) layer1.draw(canvas);
+            //if (layer2 != null) layer2.draw(canvas);
+            //if (layer3 != null) layer3.draw(canvas);
 
             if (playerCriado && player != null) {
                 player.draw(canvas);
