@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void iniciarJogo() {
         gameView = new GameView(this);
         setContentView(gameView);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         gameView.resume();
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
