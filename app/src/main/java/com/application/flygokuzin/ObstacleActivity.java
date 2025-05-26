@@ -10,6 +10,7 @@ public class ObstacleActivity {
     private float x, y, width, height, speed;
     private float screenHeight;
     private Paint paint;
+    private RectF rect = new RectF();
 
     public ObstacleActivity(Context context, float startX, float screenHeight) {
         this.x = startX;
@@ -36,12 +37,8 @@ public class ObstacleActivity {
     }
 
     public boolean colideCom(PlayerActivity player) {
-        float px = player.getX();
-        float py = player.getY();
-        float pr = player.getRadius();
-
-        RectF rect = new RectF(x, y, x + width, y + height);
-        return rect.contains(px, py);
+        rect.set(x, y, x + width, y + height);
+        return rect.contains(player.getX(), player.getY());
     }
 
     public void aumentarVelocidade(float fator) {
