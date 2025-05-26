@@ -11,6 +11,9 @@ public class PlayerActivity {
     private int spriteIndex = 0;
     private boolean indoEsquerda = false;
     private boolean direcaoAtualEsquerda = false;
+    private float velocityX = 0;
+    private final float FRICTION = 0.9f;
+
 
     public PlayerActivity(float x, float y, float radius,
                           Bitmap[] spritesDireita, Bitmap[] spritesEsquerda) {
@@ -26,26 +29,37 @@ public class PlayerActivity {
     }
 
     public void update(float sensorX) {
-        // Movimento lateral via acelerômetro
-        if (sensorX > 1) {
-            x -= sensorX * 5;
-            indoEsquerda = true;
-        } else if (sensorX < -1) {
-            x -= sensorX * 5;
-            indoEsquerda = false;
+        // Aplicar aceleração baseada no sensor
+        velocityX -= sensorX * 1.0f;  // fator de aceleração ajustável (1.0f ou outro)
+
+        // Aplicar atrito para suavizar movimento
+        velocityX *= FRICTION;
+
+        x += velocityX;
+
+        // Limitar dentro da tela
+        if (x < radius) {
+            x = radius;
+            velocityX = 0; // para não ficar tentando sair
+        }
+        if (x > canvasWidth - radius) {
+            x = canvasWidth - radius;
+            velocityX = 0;
         }
 
-        // Impedir que o personagem saia da tela
-        if (x < radius) x = radius;
-        if (x > canvasWidth - radius) x = canvasWidth - radius;
-
         // Alterna animação apenas se estiver se movendo
-        if (Math.abs(sensorX) > 1) {
-            if (indoEsquerda != direcaoAtualEsquerda) {
+        if (Math.abs(velocityX) > 1) {  // Usa velocityX para detectar movimento
+            boolean indoEsquerdaAgora = velocityX < 0;
+
+            if (indoEsquerdaAgora != direcaoAtualEsquerda) {
                 spriteIndex = 0;
-                direcaoAtualEsquerda = indoEsquerda;
+                direcaoAtualEsquerda = indoEsquerdaAgora;
             } else {
-                spriteIndex = (spriteIndex + 1) % spritesDireita.length;
+                if (direcaoAtualEsquerda) {
+                    spriteIndex = (spriteIndex + 1) % spritesEsquerda.length;
+                } else {
+                    spriteIndex = (spriteIndex + 1) % spritesDireita.length;
+                }
             }
         }
     }
