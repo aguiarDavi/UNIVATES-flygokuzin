@@ -51,7 +51,8 @@ public class GameView extends SurfaceView implements Runnable {
             return;
         }
 
-        Bitmap bgFar = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far2);
+        Bitmap raw = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far2);
+        Bitmap bgFar = Bitmap.createScaledBitmap(raw, getWidth(), getHeight(), false);
         //Bitmap bgMid = BitmapFactory.decodeResource(getResources(), R.drawable.bg_mid);
         //Bitmap bgFront = BitmapFactory.decodeResource(getResources(), R.drawable.bg_front);
 
