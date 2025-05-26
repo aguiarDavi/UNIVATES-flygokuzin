@@ -41,6 +41,7 @@ public class GameView extends SurfaceView implements Runnable {
         textPaint.setTextSize(60);
         textPaint.setFakeBoldText(true);
 
+        // Cria o player e o fundo após a view ser inicializada
         post(this::criarPlayer);
     }
 
@@ -50,7 +51,7 @@ public class GameView extends SurfaceView implements Runnable {
             return;
         }
 
-        Bitmap bgFar = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far);
+        Bitmap bgFar = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far2);
         //Bitmap bgMid = BitmapFactory.decodeResource(getResources(), R.drawable.bg_mid);
         //Bitmap bgFront = BitmapFactory.decodeResource(getResources(), R.drawable.bg_front);
 
