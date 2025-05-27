@@ -25,12 +25,15 @@ public class GameView extends SurfaceView implements Runnable {
     private List<ObstacleActivity> obstaclesParaRemover;
     private float sensorX;
     private int score = 0;
+    private int recorde = 0;
     private long ultimoIncrementoScore = System.currentTimeMillis();
     private Paint textPaint;
     private boolean playerCriado = false;
     private boolean gameOverMostrado = false;
     private Canvas canvas;
     private ParallaxActivity layer1, layer2, layer3;
+
+
 
 
     public GameView(Context context) {
@@ -45,6 +48,8 @@ public class GameView extends SurfaceView implements Runnable {
         textPaint.setColor(Color.BLACK);
         textPaint.setTextSize(60);
         textPaint.setFakeBoldText(true);
+
+        recorde = carregarRecorde();
 
         // Cria o player e o fundo após a view ser inicializada
         post(this::criarPlayer);
@@ -125,6 +130,11 @@ public class GameView extends SurfaceView implements Runnable {
                     gameOverMostrado = true;
                     isPlaying = false;
 
+                    if (score > recorde) {
+                        salvarRecorde(score);
+                        recorde = score;
+                    }
+
                     post(() -> {
                         pause();
                         Context context = getContext();
@@ -171,6 +181,7 @@ public class GameView extends SurfaceView implements Runnable {
                 }
             }
             canvas.drawText("Score: " + score, 50, 100, textPaint);
+            canvas.drawText("Recorde: " + recorde, 50, 180, textPaint);
             holder.unlockCanvasAndPost(canvas);
         }
     }
@@ -199,5 +210,20 @@ public class GameView extends SurfaceView implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    //LÓGICA DO RECORDE:
+    private void salvarRecorde(int novoRecorde){
+        Context context = getContext();
+        context.getSharedPreferences("game_prefs",Context.MODE_PRIVATE)
+                .edit()
+                .putInt("recorde", novoRecorde)
+                .apply();
+    }
+
+    private int carregarRecorde() {
+        Context context = getContext();
+        return context.getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
+                .getInt("recorde",0);
     }
 }

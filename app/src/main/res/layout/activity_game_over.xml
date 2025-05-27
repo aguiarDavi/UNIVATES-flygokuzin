@@ -44,6 +44,15 @@
             android:textColor="#FFFFFF"
             android:layout_marginBottom="32dp" />
 
+        <TextView
+            android:id="@+id/textRecorde"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recorde: 0"
+            android:textSize="24sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="32dp" />
+
         <Button
             android:id="@+id/btnRestart"
             android:layout_width="wrap_content"
