@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.WindowManager;
 
@@ -15,6 +16,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private GameView gameView;
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    private MediaPlayer gameMusic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +24,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        gameMusic = MediaPlayer.create(this, R.raw.main);
+        gameMusic.setLooping(true);
+        gameMusic.start();
 
         iniciarJogo();
     }
@@ -39,6 +45,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
         if (gameView != null) gameView.resume();
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        if (gameMusic != null) {
+            gameMusic.start();
+        }
     }
 
     @Override
@@ -46,6 +55,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         if (gameView != null) gameView.pause();
         sensorManager.unregisterListener(this);
+        if (gameMusic != null) {
+            gameMusic.start();
+        }
+
     }
 
     @Override
@@ -67,5 +80,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 finish();
             }
         });
+    }
+
+    public void tocarSomDeMorte() {
+        MediaPlayer deathSound = MediaPlayer.create(this, R.raw.death);
+        deathSound.setOnCompletionListener(MediaPlayer::release);
+        deathSound.start();
     }
 }

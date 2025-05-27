@@ -34,8 +34,6 @@ public class GameView extends SurfaceView implements Runnable {
     private ParallaxActivity layer1, layer2, layer3;
 
 
-
-
     public GameView(Context context) {
         super(context);
         holder = getHolder();
@@ -49,7 +47,7 @@ public class GameView extends SurfaceView implements Runnable {
         textPaint.setTextSize(60);
         textPaint.setFakeBoldText(true);
 
-        recorde = carregarRecorde();
+
 
         // Cria o player e o fundo após a view ser inicializada
         post(this::criarPlayer);
@@ -63,7 +61,6 @@ public class GameView extends SurfaceView implements Runnable {
 
         Bitmap raw = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far2);
         Bitmap bgFar = Bitmap.createScaledBitmap(raw, getWidth(), getHeight(), false);
-        //Bitmap bgMid = BitmapFactory.decodeResource(getResources(), R.drawable.bg_mid);
         //Bitmap bgFront = BitmapFactory.decodeResource(getResources(), R.drawable.bg_front);
 
         layer1 = new ParallaxActivity(bgFar, 1.0f, getHeight());
@@ -115,7 +112,6 @@ public class GameView extends SurfaceView implements Runnable {
                 aumentarDificuldade();
             }
         }
-
         if (layer1 != null) layer1.update();
 
         player.update(sensorX);
@@ -139,6 +135,7 @@ public class GameView extends SurfaceView implements Runnable {
                         pause();
                         Context context = getContext();
                         if (context instanceof Activity) {
+                            ((MainActivity) context).tocarSomDeMorte();
                             ((MainActivity) context).mostrarGameOver(score);
                         }
                     });
@@ -168,8 +165,12 @@ public class GameView extends SurfaceView implements Runnable {
     private void draw() {
         if (holder.getSurface().isValid()) {
             Canvas canvas = holder.lockCanvas();
+            // canvas.drawColor(Color.WHITE);
 
+            // Desenhar as camadas do fundo
             if (layer1 != null) layer1.draw(canvas);
+            //if (layer2 != null) layer2.draw(canvas);
+            //if (layer3 != null) layer3.draw(canvas);
 
             if (playerCriado && player != null) {
                 player.draw(canvas);
@@ -180,12 +181,12 @@ public class GameView extends SurfaceView implements Runnable {
                     obs.draw(canvas);
                 }
             }
+
             canvas.drawText("Score: " + score, 50, 100, textPaint);
             canvas.drawText("Recorde: " + recorde, 50, 180, textPaint);
             holder.unlockCanvasAndPost(canvas);
         }
     }
-
 
     private void sleep() {
         try {

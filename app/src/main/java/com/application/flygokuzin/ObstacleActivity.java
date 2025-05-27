@@ -1,18 +1,19 @@
 package com.application.flygokuzin;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.RectF;
-
 import java.util.Random;
+import android.graphics.RectF;
 
 public class ObstacleActivity {
 
     private float x, y, width, height, speed;
     private float screenHeight;
     private Bitmap imagem;
+    private RectF rect = new RectF();
 
     public ObstacleActivity(Context context, float startX, float screenHeight) {
         this.x = startX;
@@ -22,7 +23,6 @@ public class ObstacleActivity {
         this.speed = 10;
         this.screenHeight = screenHeight;
 
-        // Lista de imagens disponíveis
         int[] imagens = {
                 R.drawable.kuririn,
                 R.drawable.majin_boo,
@@ -54,12 +54,8 @@ public class ObstacleActivity {
     }
 
     public boolean colideCom(PlayerActivity player) {
-        float px = player.getX();
-        float py = player.getY();
-        float pr = player.getRadius();
-
-        RectF rect = new RectF(x, y, x + width, y + height);
-        return rect.contains(px, py);
+        rect.set(x, y, x + width, y + height);
+        return rect.contains(player.getX(), player.getY());
     }
 
     public void aumentarVelocidade(float fator) {
