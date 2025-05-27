@@ -128,6 +128,7 @@ public class GameView extends SurfaceView implements Runnable {
                     if (context instanceof Activity) {
                         Activity activity = (Activity) context;
                         if (!activity.isFinishing()) {
+                            ((MainActivity) activity).tocarSomDeMorte();
                             ((MainActivity) activity).mostrarGameOver(score);
                         }
                     }
