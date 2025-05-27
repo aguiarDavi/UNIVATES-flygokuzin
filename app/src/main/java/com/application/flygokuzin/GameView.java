@@ -21,8 +21,11 @@ public class GameView extends SurfaceView implements Runnable {
     private SurfaceHolder holder;
     private PlayerActivity player;
     private List<ObstacleActivity> obstacles;
+    private List<ObstacleActivity> obstaclesParaAdicionar;
+    private List<ObstacleActivity> obstaclesParaRemover;
     private float sensorX;
     private int score = 0;
+    private int recorde = 0;
     private long ultimoIncrementoScore = System.currentTimeMillis();
     private Paint textPaint;
     private boolean playerCriado = false;
@@ -36,10 +39,15 @@ public class GameView extends SurfaceView implements Runnable {
         holder = getHolder();
         obstacles = new ArrayList<>();
 
+        obstaclesParaAdicionar = new ArrayList<>();
+        obstaclesParaRemover = new ArrayList<>();
+
         textPaint = new Paint();
         textPaint.setColor(Color.BLACK);
         textPaint.setTextSize(60);
         textPaint.setFakeBoldText(true);
+
+
 
         // Cria o player e o fundo após a view ser inicializada
         post(this::criarPlayer);
@@ -51,8 +59,8 @@ public class GameView extends SurfaceView implements Runnable {
             return;
         }
 
-        Bitmap bgFar = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far2);
-        //Bitmap bgMid = BitmapFactory.decodeResource(getResources(), R.drawable.bg_mid);
+        Bitmap raw = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far2);
+        Bitmap bgFar = Bitmap.createScaledBitmap(raw, getWidth(), getHeight(), false);
         //Bitmap bgFront = BitmapFactory.decodeResource(getResources(), R.drawable.bg_front);
 
         layer1 = new ParallaxActivity(bgFar, 1.0f, getHeight());
@@ -104,43 +112,47 @@ public class GameView extends SurfaceView implements Runnable {
                 aumentarDificuldade();
             }
         }
-        //update nas layers
         if (layer1 != null) layer1.update();
-        //if (layer2 != null) layer2.update();
-        //if (layer3 != null) layer3.update();
 
         player.update(sensorX);
 
-        Iterator<ObstacleActivity> iterator = obstacles.iterator();
-        while (iterator.hasNext()) {
-            ObstacleActivity obs = iterator.next();
-            obs.update();
-            if (obs.isOffScreen()) {
-                iterator.remove();
-            } else if (obs.colideCom(player)) {
-                gameOverMostrado = true;
-                isPlaying = false;
+        synchronized (obstacles) {
+            for (ObstacleActivity obs : obstacles) {
+                obs.update();
 
-                post(() -> {
-                    pause();  // Para a thread do jogo
+                if (obs.isOffScreen()) {
+                    obstaclesParaRemover.add(obs);
+                } else if (obs.colideCom(player)) {
+                    gameOverMostrado = true;
+                    isPlaying = false;
 
-                    Context context = getContext();
-                    if (context instanceof Activity) {
-                        Activity activity = (Activity) context;
-                        if (!activity.isFinishing()) {
-                            ((MainActivity) activity).tocarSomDeMorte();
-                            ((MainActivity) activity).mostrarGameOver(score);
-                        }
+                    if (score > recorde) {
+                        salvarRecorde(score);
+                        recorde = score;
                     }
-                });
 
-                return;
+                    post(() -> {
+                        pause();
+                        Context context = getContext();
+                        if (context instanceof Activity) {
+                            ((MainActivity) context).tocarSomDeMorte();
+                            ((MainActivity) context).mostrarGameOver(score);
+                        }
+                    });
+
+                    return;
+                }
             }
-        }
 
-        if (Math.random() < 0.02) {
-            float x = (float) (Math.random() * getWidth());
-            obstacles.add(new ObstacleActivity(getContext(), x, getHeight()));
+            if (Math.random() < 0.02) {
+                float x = (float) (Math.random() * getWidth());
+                obstaclesParaAdicionar.add(new ObstacleActivity(getContext(), x, getHeight()));
+            }
+
+            obstacles.removeAll(obstaclesParaRemover);
+            obstacles.addAll(obstaclesParaAdicionar);
+            obstaclesParaRemover.clear();
+            obstaclesParaAdicionar.clear();
         }
     }
 
@@ -164,11 +176,14 @@ public class GameView extends SurfaceView implements Runnable {
                 player.draw(canvas);
             }
 
-            for (ObstacleActivity obs : obstacles) {
-                obs.draw(canvas);
+            synchronized (obstacles) {
+                for (ObstacleActivity obs : obstacles) {
+                    obs.draw(canvas);
+                }
             }
 
             canvas.drawText("Score: " + score, 50, 100, textPaint);
+            canvas.drawText("Recorde: " + recorde, 50, 180, textPaint);
             holder.unlockCanvasAndPost(canvas);
         }
     }
@@ -196,5 +211,20 @@ public class GameView extends SurfaceView implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    //LÓGICA DO RECORDE:
+    private void salvarRecorde(int novoRecorde){
+        Context context = getContext();
+        context.getSharedPreferences("game_prefs",Context.MODE_PRIVATE)
+                .edit()
+                .putInt("recorde", novoRecorde)
+                .apply();
+    }
+
+    private int carregarRecorde() {
+        Context context = getContext();
+        return context.getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
+                .getInt("recorde",0);
     }
 }

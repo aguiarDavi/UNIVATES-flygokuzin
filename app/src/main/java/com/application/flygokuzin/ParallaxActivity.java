@@ -12,7 +12,7 @@ public class ParallaxActivity {
     private float y1, y2;
 
     public ParallaxActivity(Bitmap image, float speed, int screenHeight) {
-        this.image = Bitmap.createScaledBitmap(image, image.getWidth(), screenHeight, true);
+        this.image = image;
         this.speed = speed;
         this.screenHeight = screenHeight;
 
@@ -24,18 +24,15 @@ public class ParallaxActivity {
         y1 += speed;
         y2 += speed;
 
-        // Reinicia posições para loop
         if (y1 >= screenHeight) {
             y1 = y2 - screenHeight;
-        }
-
-        if (y2 >= screenHeight) {
+        } else if (y2 >= screenHeight) {
             y2 = y1 - screenHeight;
         }
     }
 
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(image, 0, y1, null);
-        canvas.drawBitmap(image, 0, y2, null);
+        canvas.drawBitmap(image, 0, Math.round(y1), null);
+        canvas.drawBitmap(image, 0, Math.round(y2), null);
     }
 }
