@@ -21,6 +21,8 @@ public class GameView extends SurfaceView implements Runnable {
     private SurfaceHolder holder;
     private PlayerActivity player;
     private List<ObstacleActivity> obstacles;
+    private List<ObstacleActivity> obstaclesParaAdicionar;
+    private List<ObstacleActivity> obstaclesParaRemover;
     private float sensorX;
     private int score = 0;
     private long ultimoIncrementoScore = System.currentTimeMillis();
@@ -35,6 +37,9 @@ public class GameView extends SurfaceView implements Runnable {
         super(context);
         holder = getHolder();
         obstacles = new ArrayList<>();
+
+        obstaclesParaAdicionar = new ArrayList<>();
+        obstaclesParaRemover = new ArrayList<>();
 
         textPaint = new Paint();
         textPaint.setColor(Color.BLACK);
@@ -105,42 +110,42 @@ public class GameView extends SurfaceView implements Runnable {
                 aumentarDificuldade();
             }
         }
-        //update nas layers
+
         if (layer1 != null) layer1.update();
-        //if (layer2 != null) layer2.update();
-        //if (layer3 != null) layer3.update();
 
         player.update(sensorX);
 
-        Iterator<ObstacleActivity> iterator = obstacles.iterator();
-        while (iterator.hasNext()) {
-            ObstacleActivity obs = iterator.next();
-            obs.update();
-            if (obs.isOffScreen()) {
-                iterator.remove();
-            } else if (obs.colideCom(player)) {
-                gameOverMostrado = true;
-                isPlaying = false;
+        synchronized (obstacles) {
+            for (ObstacleActivity obs : obstacles) {
+                obs.update();
 
-                post(() -> {
-                    pause();  // Para a thread do jogo
+                if (obs.isOffScreen()) {
+                    obstaclesParaRemover.add(obs);
+                } else if (obs.colideCom(player)) {
+                    gameOverMostrado = true;
+                    isPlaying = false;
 
-                    Context context = getContext();
-                    if (context instanceof Activity) {
-                        Activity activity = (Activity) context;
-                        if (!activity.isFinishing()) {
-                            ((MainActivity) activity).mostrarGameOver(score);
+                    post(() -> {
+                        pause();
+                        Context context = getContext();
+                        if (context instanceof Activity) {
+                            ((MainActivity) context).mostrarGameOver(score);
                         }
-                    }
-                });
+                    });
 
-                return;
+                    return;
+                }
             }
-        }
 
-        if (Math.random() < 0.02) {
-            float x = (float) (Math.random() * getWidth());
-            obstacles.add(new ObstacleActivity(getContext(), x, getHeight()));
+            if (Math.random() < 0.02) {
+                float x = (float) (Math.random() * getWidth());
+                obstaclesParaAdicionar.add(new ObstacleActivity(getContext(), x, getHeight()));
+            }
+
+            obstacles.removeAll(obstaclesParaRemover);
+            obstacles.addAll(obstaclesParaAdicionar);
+            obstaclesParaRemover.clear();
+            obstaclesParaAdicionar.clear();
         }
     }
 
@@ -153,25 +158,23 @@ public class GameView extends SurfaceView implements Runnable {
     private void draw() {
         if (holder.getSurface().isValid()) {
             Canvas canvas = holder.lockCanvas();
-            // canvas.drawColor(Color.WHITE);
 
-            // Desenhar as camadas do fundo
             if (layer1 != null) layer1.draw(canvas);
-            //if (layer2 != null) layer2.draw(canvas);
-            //if (layer3 != null) layer3.draw(canvas);
 
             if (playerCriado && player != null) {
                 player.draw(canvas);
             }
 
-            for (ObstacleActivity obs : obstacles) {
-                obs.draw(canvas);
+            synchronized (obstacles) {
+                for (ObstacleActivity obs : obstacles) {
+                    obs.draw(canvas);
+                }
             }
-
             canvas.drawText("Score: " + score, 50, 100, textPaint);
             holder.unlockCanvasAndPost(canvas);
         }
     }
+
 
     private void sleep() {
         try {
