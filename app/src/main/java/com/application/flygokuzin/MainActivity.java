@@ -25,10 +25,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        gameMusic = MediaPlayer.create(this, R.raw.main);
-        gameMusic.setLooping(true);
-        gameMusic.start();
-
         iniciarJogo();
     }
 
@@ -45,7 +41,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
         if (gameView != null) gameView.resume();
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
-        if (gameMusic != null) {
+        if (gameMusic == null) {
+            gameMusic = MediaPlayer.create(this, R.raw.main);
+            gameMusic.setLooping(true);
             gameMusic.start();
         }
     }
@@ -55,10 +53,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         if (gameView != null) gameView.pause();
         sensorManager.unregisterListener(this);
-        if (gameMusic != null) {
-            gameMusic.start();
+        if (gameMusic != null && gameMusic.isPlaying()) {
+            gameMusic.pause();
         }
-
     }
 
     @Override
@@ -73,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void mostrarGameOver(int scoreFinal) {
         runOnUiThread(() -> {
+            if (gameMusic != null) {
+                gameMusic.stop();
+                gameMusic.release();
+                gameMusic = null;
+            }
             if (!isFinishing()) {
                 Intent intent = new Intent(MainActivity.this, GameOverActivity.class);
                 intent.putExtra("score", scoreFinal);
@@ -86,5 +88,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         MediaPlayer deathSound = MediaPlayer.create(this, R.raw.death);
         deathSound.setOnCompletionListener(MediaPlayer::release);
         deathSound.start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (gameMusic != null) {
+            gameMusic.stop();
+            gameMusic.release();
+            gameMusic = null;
+        }
     }
 }
