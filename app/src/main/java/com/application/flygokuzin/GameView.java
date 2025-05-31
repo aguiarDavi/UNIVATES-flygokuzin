@@ -31,6 +31,9 @@ public class GameView extends SurfaceView implements Runnable {
     private boolean gameOverMostrado = false;
     private Canvas canvas;
     private ParallaxActivity layer1, layer2, layer3;
+    private int dificuldade = 1;
+    private float velocidadeObstaculos = 1.0f;
+    private static final float MIN_DISTANCIA_X = 85f;
 
 
     public GameView(Context context) {
@@ -107,10 +110,15 @@ public class GameView extends SurfaceView implements Runnable {
             score++;
             ultimoIncrementoScore = agora;
 
-            if (score % 100 == 0) {
-                aumentarDificuldade();
+            // Aumenta a velocidade do jogo
+            float novaVelocidade = 1.0f + (score / 7000.0f);
+            velocidadeObstaculos = Math.min(novaVelocidade, 4f);
+
+            for (ObstacleActivity obs : obstacles) {
+                obs.aumentarVelocidade(velocidadeObstaculos);
             }
         }
+
         if (layer1 != null) layer1.update();
 
         player.update(sensorX);
@@ -143,11 +151,23 @@ public class GameView extends SurfaceView implements Runnable {
                 }
             }
 
-            if (Math.random() < 0.02) {
-                float x = (float) (Math.random() * getWidth());
-                obstaclesParaAdicionar.add(new ObstacleActivity(getContext(), x, getHeight()));
-            }
+            double chanceObstaculo = 0.025 + (dificuldade * 0.01);
+            if (Math.random() < chanceObstaculo) {
+                int tentativas = 0;
+                boolean criado = false;
 
+                while(tentativas < 10 && !criado){
+                    float x = (float) (Math.random() * getWidth());
+
+                    if(posicaoEhValida(x)){
+                        ObstacleActivity novoObstaculo = new ObstacleActivity(getContext(), x, getHeight());
+                        novoObstaculo.aumentarVelocidade(velocidadeObstaculos);
+                        obstaclesParaAdicionar.add(novoObstaculo);
+                        criado = true;
+                    }
+                    tentativas++;
+                }
+            }
             obstacles.removeAll(obstaclesParaRemover);
             obstacles.addAll(obstaclesParaAdicionar);
             obstaclesParaRemover.clear();
@@ -155,10 +175,14 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-    private void aumentarDificuldade() {
+    private boolean posicaoEhValida(float novaPosicaoX) {
         for (ObstacleActivity obs : obstacles) {
-            obs.aumentarVelocidade(1.05f);
+            float distanciaX = Math.abs(obs.getX() - novaPosicaoX);
+            if (distanciaX < MIN_DISTANCIA_X) {
+                return false;
+            }
         }
+        return novaPosicaoX > 50 && novaPosicaoX < (getWidth() - 50);
     }
 
     private void draw() {

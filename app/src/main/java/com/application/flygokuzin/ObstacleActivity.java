@@ -61,4 +61,13 @@ public class ObstacleActivity {
     public void aumentarVelocidade(float fator) {
         speed *= fator;
     }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
 }
