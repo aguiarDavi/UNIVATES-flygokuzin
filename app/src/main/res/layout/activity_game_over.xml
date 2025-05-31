@@ -3,20 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Imagem de fundo -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/imagem_fundo_game_over"
         android:scaleType="centerCrop" />
 
-    <!-- Película escura -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#AA000000" />
 
-    <!-- Conteúdo por cima (texto e botão) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -44,27 +41,38 @@
             android:textColor="#FFFFFF"
             android:layout_marginBottom="32dp" />
 
-        <TextView
-            android:id="@+id/textRecorde"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Recorde: 0"
-            android:textSize="24sp"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="32dp" />
+            android:orientation="horizontal"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/btnRestart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="REINICIAR"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#333333"
-            android:paddingLeft="32dp"
-            android:paddingRight="32dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:textSize="18sp" />
+            <Button
+                android:id="@+id/btnRestart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="REINICIAR"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#333333"
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:textSize="18sp"
+                android:layout_marginEnd="16dp" />
+
+            <Button
+                android:id="@+id/btnTelaInicial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TELA INICIAL"
+                android:textColor="#333333"
+                android:backgroundTint="#FFFFFF"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:textSize="18sp" />
+        </LinearLayout>
     </LinearLayout>
-
 </FrameLayout>

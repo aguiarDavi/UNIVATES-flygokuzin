@@ -10,9 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Flygokuzin">
 
-        <!-- Tela principal do jogo -->
+        <!-- Tela Inicial -->
         <activity
-            android:name=".MainActivity"
+            android:name=".StartActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
@@ -20,6 +20,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Tela principal do jogo -->
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!-- Tela de Game Over -->
         <activity
