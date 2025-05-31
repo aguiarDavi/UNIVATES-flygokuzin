@@ -11,7 +11,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class GameView extends SurfaceView implements Runnable {
@@ -47,7 +46,7 @@ public class GameView extends SurfaceView implements Runnable {
         textPaint.setTextSize(60);
         textPaint.setFakeBoldText(true);
 
-
+        recorde = carregarRecorde();
 
         // Cria o player e o fundo após a view ser inicializada
         post(this::criarPlayer);
@@ -216,7 +215,7 @@ public class GameView extends SurfaceView implements Runnable {
     //LÓGICA DO RECORDE:
     private void salvarRecorde(int novoRecorde){
         Context context = getContext();
-        context.getSharedPreferences("game_prefs",Context.MODE_PRIVATE)
+        context.getSharedPreferences("game_data",Context.MODE_PRIVATE)
                 .edit()
                 .putInt("recorde", novoRecorde)
                 .apply();
@@ -224,7 +223,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     private int carregarRecorde() {
         Context context = getContext();
-        return context.getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
+        return context.getSharedPreferences("game_data", Context.MODE_PRIVATE)
                 .getInt("recorde",0);
     }
 }
