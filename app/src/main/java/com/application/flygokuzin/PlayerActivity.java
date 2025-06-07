@@ -5,16 +5,16 @@ import android.graphics.Canvas;
 
 public class PlayerActivity {
     private float x, y, radius;
-    private float canvasWidth; // largura da tela para limitar o movimento
-    private Bitmap[] spritesDireita;
-    private Bitmap[] spritesEsquerda;
-    private int spriteIndex = 0;
-    private boolean indoEsquerda = false;
-    private boolean direcaoAtualEsquerda = false;
-    private float velocityX = 0;
-    private final float FRICTION = 0.9f;
+    private float canvasWidth; // Largura da tela, usada para limitar movimento do personagem
+    private Bitmap[] spritesDireita;  // Sprites de animação para movimento à direita
+    private Bitmap[] spritesEsquerda; // Sprites de animação para movimento à esquerda
+    private int spriteIndex = 0;      // Índice atual do sprite sendo desenhado
+    private boolean indoEsquerda = false;          // Indicador temporário de direção
+    private boolean direcaoAtualEsquerda = false;  // Direção atual persistente
+    private float velocityX = 0;                   // Velocidade horizontal
+    private final float FRICTION = 0.9f;           // Fator de atrito para suavizar movimento
 
-
+    // Construtor: recebe posição, raio e os sprites de ambas as direções
     public PlayerActivity(float x, float y, float radius,
                           Bitmap[] spritesDireita, Bitmap[] spritesEsquerda) {
         this.x = x;
@@ -24,37 +24,42 @@ public class PlayerActivity {
         this.spritesEsquerda = spritesEsquerda;
     }
 
+    // Define a largura do canvas para limitar movimento horizontal
     public void setCanvasWidth(float width) {
         this.canvasWidth = width;
     }
 
+    // Atualiza a posição e animação com base no sensor (acelerômetro)
     public void update(float sensorX) {
-        // Aplicar aceleração baseada no sensor
-        velocityX -= sensorX * 1.0f;  // fator de aceleração ajustável (1.0f ou outro)
+        // Aplica aceleração com base no movimento do celular
+        velocityX -= sensorX * 1.0f;  // Fator ajustável de sensibilidade
 
-        // Aplicar atrito para suavizar movimento
+        // Aplica atrito para suavizar a desaceleração
         velocityX *= FRICTION;
 
+        // Atualiza a posição do jogador
         x += velocityX;
 
-        // Limitar dentro da tela
+        // Impede o jogador de sair da tela
         if (x < radius) {
             x = radius;
-            velocityX = 0; // para não ficar tentando sair
+            velocityX = 0; // Impede empurrar contra a borda
         }
         if (x > canvasWidth - radius) {
             x = canvasWidth - radius;
             velocityX = 0;
         }
 
-        // Alterna animação apenas se estiver se movendo
-        if (Math.abs(velocityX) > 1) {  // Usa velocityX para detectar movimento
+        // Atualiza a animação apenas se estiver se movendo
+        if (Math.abs(velocityX) > 1) {
             boolean indoEsquerdaAgora = velocityX < 0;
 
             if (indoEsquerdaAgora != direcaoAtualEsquerda) {
+                // Mudou de direção, reinicia animação
                 spriteIndex = 0;
                 direcaoAtualEsquerda = indoEsquerdaAgora;
             } else {
+                // Continua na mesma direção, avança quadro da animação
                 if (direcaoAtualEsquerda) {
                     spriteIndex = (spriteIndex + 1) % spritesEsquerda.length;
                 } else {
@@ -64,6 +69,7 @@ public class PlayerActivity {
         }
     }
 
+    // Desenha o sprite atual na posição x e y
     public void draw(Canvas canvas) {
         Bitmap spriteAtual = direcaoAtualEsquerda
                 ? spritesEsquerda[spriteIndex]
@@ -75,7 +81,16 @@ public class PlayerActivity {
                 null);
     }
 
-    public float getX() { return x; }
-    public float getY() { return y; }
-    public float getRadius() { return radius; }
+    // Retorna coordenadas e raio do jogador (usado para colisões)
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
 }

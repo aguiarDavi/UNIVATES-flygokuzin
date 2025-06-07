@@ -3,75 +3,83 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Imagem de fundo para a tela de Game Over -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/imagem_fundo_game_over"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/imagem_fundo_game_over" />
 
+    <!-- Camada semi-transparente preta para criar efeito de sombra -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#AA000000" />
 
+    <!-- Área central inferior com os textos e botões -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_marginBottom="80dp"
         android:gravity="center_horizontal|bottom"
-        android:padding="24dp"
-        android:layout_marginBottom="80dp">
+        android:orientation="vertical"
+        android:padding="24dp">
 
+        <!-- Título "Game Over" exibido em destaque -->
         <TextView
             android:id="@+id/textGameOver"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:text="Game Over"
-            android:textSize="36sp"
             android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:textSize="36sp"
+            android:textStyle="bold" />
 
+        <!-- Texto que mostra o score final do jogador -->
         <TextView
             android:id="@+id/textScoreFinal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
             android:text="Score Final: 0"
-            android:textSize="24sp"
             android:textColor="#FFFFFF"
-            android:layout_marginBottom="32dp" />
+            android:textSize="24sp" />
 
+        <!-- Botões de reiniciar jogo e voltar para tela inicial -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="horizontal">
 
+            <!-- Botão para reiniciar o jogo -->
             <Button
                 android:id="@+id/btnRestart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="REINICIAR"
-                android:textColor="#FFFFFF"
+                android:layout_marginEnd="16dp"
                 android:backgroundTint="#333333"
                 android:paddingLeft="32dp"
-                android:paddingRight="32dp"
                 android:paddingTop="12dp"
+                android:paddingRight="32dp"
                 android:paddingBottom="12dp"
-                android:textSize="18sp"
-                android:layout_marginEnd="16dp" />
+                android:text="REINICIAR"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
 
+            <!-- Botão para retornar à tela inicial -->
             <Button
                 android:id="@+id/btnTelaInicial"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TELA INICIAL"
-                android:textColor="#333333"
                 android:backgroundTint="#FFFFFF"
                 android:paddingLeft="24dp"
-                android:paddingRight="24dp"
                 android:paddingTop="12dp"
+                android:paddingRight="24dp"
                 android:paddingBottom="12dp"
+                android:text="TELA INICIAL"
+                android:textColor="#333333"
                 android:textSize="18sp" />
         </LinearLayout>
     </LinearLayout>

@@ -35,7 +35,7 @@ public class GameView extends SurfaceView implements Runnable {
     private float velocidadeObstaculos = 1.0f;
     private static final float MIN_DISTANCIA_X = 85f;
 
-
+    // Construtor da GameView: inicializa listas e configurações iniciais do jogo
     public GameView(Context context) {
         super(context);
         holder = getHolder();
@@ -55,6 +55,7 @@ public class GameView extends SurfaceView implements Runnable {
         post(this::criarPlayer);
     }
 
+    // Inicializa o player e o fundo parallax
     private void criarPlayer() {
         if (getWidth() == 0 || getHeight() == 0) {
             post(this::criarPlayer);
@@ -63,11 +64,8 @@ public class GameView extends SurfaceView implements Runnable {
 
         Bitmap raw = BitmapFactory.decodeResource(getResources(), R.drawable.bg_far2);
         Bitmap bgFar = Bitmap.createScaledBitmap(raw, getWidth(), getHeight(), false);
-        //Bitmap bgFront = BitmapFactory.decodeResource(getResources(), R.drawable.bg_front);
 
         layer1 = new ParallaxActivity(bgFar, 1.0f, getHeight());
-        //layer2 = new ParallaxActivity(bgMid, 2.0f, getHeight());
-        //layer3 = new ParallaxActivity(bgFront, 3.0f, getHeight());
 
         int centerX = getWidth() / 2;
         int centerY = getHeight() - 300;
@@ -89,10 +87,12 @@ public class GameView extends SurfaceView implements Runnable {
         playerCriado = true;
     }
 
+    // Recebe valor do acelerômetro para controlar o movimento
     public void setSensorX(float sensorX) {
         this.sensorX = sensorX;
     }
 
+    // Loop principal do jogo
     @Override
     public void run() {
         while (isPlaying) {
@@ -102,6 +102,7 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    // Atualiza o estado do jogo: movimentação, colisões, score, obstáculos
     private void update() {
         if (!playerCriado || gameOverMostrado) return;
 
@@ -110,7 +111,7 @@ public class GameView extends SurfaceView implements Runnable {
             score++;
             ultimoIncrementoScore = agora;
 
-            // Aumenta a velocidade do jogo
+            // Aumenta a velocidade do jogo conforme o score aumenta
             float novaVelocidade = 1.0f + (score / 7000.0f);
             velocidadeObstaculos = Math.min(novaVelocidade, 4f);
 
@@ -133,6 +134,7 @@ public class GameView extends SurfaceView implements Runnable {
                     gameOverMostrado = true;
                     isPlaying = false;
 
+                    // Atualiza recorde se o score atual for maior
                     if (score > recorde) {
                         salvarRecorde(score);
                         recorde = score;
@@ -151,15 +153,16 @@ public class GameView extends SurfaceView implements Runnable {
                 }
             }
 
+            // Adiciona novos obstáculos de forma aleatória conforme dificuldade
             double chanceObstaculo = 0.025 + (dificuldade * 0.01);
             if (Math.random() < chanceObstaculo) {
                 int tentativas = 0;
                 boolean criado = false;
 
-                while(tentativas < 10 && !criado){
+                while (tentativas < 10 && !criado) {
                     float x = (float) (Math.random() * getWidth());
 
-                    if(posicaoEhValida(x)){
+                    if (posicaoEhValida(x)) {
                         ObstacleActivity novoObstaculo = new ObstacleActivity(getContext(), x, getHeight());
                         novoObstaculo.aumentarVelocidade(velocidadeObstaculos);
                         obstaclesParaAdicionar.add(novoObstaculo);
@@ -168,6 +171,7 @@ public class GameView extends SurfaceView implements Runnable {
                     tentativas++;
                 }
             }
+
             obstacles.removeAll(obstaclesParaRemover);
             obstacles.addAll(obstaclesParaAdicionar);
             obstaclesParaRemover.clear();
@@ -175,6 +179,7 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    // Garante que o obstáculo não seja criado muito próximo de outro
     private boolean posicaoEhValida(float novaPosicaoX) {
         for (ObstacleActivity obs : obstacles) {
             float distanciaX = Math.abs(obs.getX() - novaPosicaoX);
@@ -185,32 +190,34 @@ public class GameView extends SurfaceView implements Runnable {
         return novaPosicaoX > 50 && novaPosicaoX < (getWidth() - 50);
     }
 
+    // Responsável por desenhar todos os elementos do jogo na tela
     private void draw() {
         if (holder.getSurface().isValid()) {
             Canvas canvas = holder.lockCanvas();
-            // canvas.drawColor(Color.WHITE);
 
-            // Desenhar as camadas do fundo
+            // Fundo parallax
             if (layer1 != null) layer1.draw(canvas);
-            //if (layer2 != null) layer2.draw(canvas);
-            //if (layer3 != null) layer3.draw(canvas);
 
+            // Desenha o personagem
             if (playerCriado && player != null) {
                 player.draw(canvas);
             }
 
+            // Desenha os obstáculos
             synchronized (obstacles) {
                 for (ObstacleActivity obs : obstacles) {
                     obs.draw(canvas);
                 }
             }
 
+            // Desenha score e recorde na tela
             canvas.drawText("Score: " + score, 50, 100, textPaint);
             canvas.drawText("Recorde: " + recorde, 50, 180, textPaint);
             holder.unlockCanvasAndPost(canvas);
         }
     }
 
+    // Controla a velocidade do loop do jogo (aproximadamente 60 FPS)
     private void sleep() {
         try {
             Thread.sleep(17);
@@ -219,12 +226,14 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    // Inicia o loop do jogo
     public void resume() {
         isPlaying = true;
         gameThread = new Thread(this);
         gameThread.start();
     }
 
+    // Pausa o loop do jogo
     public void pause() {
         isPlaying = false;
         try {
@@ -236,18 +245,21 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-    //LÓGICA DO RECORDE:
-    private void salvarRecorde(int novoRecorde){
+    // LÓGICA DO RECORDE:
+
+    // Salva o novo recorde no SharedPreferences
+    private void salvarRecorde(int novoRecorde) {
         Context context = getContext();
-        context.getSharedPreferences("game_data",Context.MODE_PRIVATE)
+        context.getSharedPreferences("game_data", Context.MODE_PRIVATE)
                 .edit()
                 .putInt("recorde", novoRecorde)
                 .apply();
     }
 
+    // Recupera o recorde salvo anteriormente
     private int carregarRecorde() {
         Context context = getContext();
         return context.getSharedPreferences("game_data", Context.MODE_PRIVATE)
-                .getInt("recorde",0);
+                .getInt("recorde", 0);
     }
 }
